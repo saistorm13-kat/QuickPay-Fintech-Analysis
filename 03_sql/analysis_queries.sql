@@ -1,11 +1,11 @@
--- 1. Count transactions by status
+-- Q1. Count transactions by status
 SELECT 
     status, 
     COUNT(transaction_id) AS transaction_count
 FROM transactions
 GROUP BY status;
 
--- 2. Calculate total captured GMV by merchant
+-- Q2. Calculate total captured GMV by merchant
 SELECT 
     merchant_name, 
     SUM(amount_usd) AS total_captured_gmv
@@ -13,7 +13,7 @@ FROM transactions
 WHERE status = 'CAPTURED'
 GROUP BY merchant_name;
 
--- 3. Show top 10 merchants by captured GMV
+-- Q3. Show top 10 merchants by captured GMV
 SELECT 
     merchant_name, 
     SUM(amount_usd) AS total_captured_gmv
@@ -23,7 +23,7 @@ GROUP BY merchant_name
 ORDER BY total_captured_gmv DESC
 LIMIT 10;
 
--- 4. Show daily GMV and successful transaction count
+-- Q4. Show daily GMV and successful transaction count
 SELECT 
     transaction_date, 
     SUM(amount_usd) AS daily_gmv, 
@@ -33,8 +33,8 @@ WHERE status = 'CAPTURED'
 GROUP BY transaction_date
 ORDER BY transaction_date;
 
--- 5. Find merchants with chargeback ratio above 1%
--- Note: Assuming 'OTHER' represents your chargebacks based on the screenshot
+-- Q5. Find merchants with chargeback ratio above 1%
+--- OTHER represents 'chargeback'
 SELECT 
     merchant_name,
     COUNT(CASE WHEN status = 'OTHER' THEN 1 END) * 1.0 / COUNT(*) AS chargeback_ratio
@@ -42,7 +42,7 @@ FROM transactions
 GROUP BY merchant_name
 HAVING chargeback_ratio > 0.01;
 
--- 6. Find regions with average risk score above 50 and more than 20 transactions
+-- Q6. Find regions with average risk score above 50 and more than 20 transactions
 SELECT 
     gateway_region, 
     AVG(risk_score) AS avg_risk, 
@@ -51,8 +51,7 @@ FROM transactions
 GROUP BY gateway_region
 HAVING avg_risk > 50 AND total_transactions > 20;
 
--- 7. Find users with 3 or more failed or chargeback transactions on the same day
--- Since user_id isn't in your sheet, we group by transaction_id to check logic
+-- Q7. Find users with 3 or more failed or chargeback transactions on the same day
 SELECT 
     transaction_id, 
     transaction_date, 
@@ -62,7 +61,7 @@ WHERE status IN ('FAILED', 'OTHER')
 GROUP BY transaction_id, transaction_date
 HAVING failed_count >= 3;
 
--- 8. Show chargeback count, unique affected users, and chargeback amount by merchant
+-- Q8. Show chargeback count, unique affected users, and chargeback amount by merchant
 SELECT 
     merchant_name, 
     COUNT(CASE WHEN status = 'OTHER' THEN 1 END) AS chargeback_count,
